@@ -1,0 +1,68 @@
+ NSString *insertSQL = [NSString stringWithFormat:@"insert into systemTB1(rwcno,vinno, status, image1) values(\"%@\",\"%@\", \"%@\", \"%@\")",RwcNo, Vin, Status, Image1];
+        NSLog(@" insertSQL :- %@",insertSQL);
+        
+        if (addStmt == nil) {
+            const char *sql = "insert into systemTB1(rwcno,vinno, status, image1) values(?,?, ?, ?)";
+            if(sqlite3_prepare_v2(database, sql, -1, &addStmt, NULL) != SQLITE_OK)
+                NSAssert1(0, @"Error while creating add statement. '%s'", sqlite3_errmsg(database));
+        }
+        
+        sqlite3_bind_text(addStmt, 1, [RwcNo UTF8String], -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(addStmt, 2, [Vin UTF8String], -1, SQLITE_TRANSIENT);
+         sqlite3_bind_text(addStmt, 3, [Status UTF8String], -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(addStmt, 4, [Image1 UTF8String], -1, SQLITE_TRANSIENT);
+        
+        if(SQLITE_DONE != sqlite3_step(addStmt))
+            NSAssert1(0, @"Error while inserting data. '%s'", sqlite3_errmsg(database));
+        
+//--------------- function------------------------------------------------------------------------------------------
+
+
+-(BOOL) saveData:(NSString*)RwcNo VinNo:(NSString*)Vin Status:(NSString*)Status Image1:(NSString*)Image1
+{
+    
+    
+
+    const char *dbpath = [databasepath UTF8String];
+    if (sqlite3_open(dbpath, &database) == SQLITE_OK)
+    {
+        
+        NSString *insertSQL = [NSString stringWithFormat:@"insert into systemTB1(rwcno,vinno, status, image1) values(?,?, ?, ?)"];
+        
+        
+        const char *insert_stmt = [insertSQL UTF8String];
+         NSLog(@" insert_stmt :- %s",insert_stmt);
+        if(sqlite3_prepare_v2(database, insert_stmt, -1, &statement, NULL) != SQLITE_OK)
+            NSLog(@"Error creating Statement");
+        
+        
+        sqlite3_bind_text(statement, 1, [RwcNo UTF8String], -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(statement, 2, [Vin UTF8String], -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(statement, 3, [Status UTF8String], -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(statement, 4, [Image1 UTF8String], -1, SQLITE_TRANSIENT);
+        
+        NSLog(@" Statement : %s  ",statement);
+        
+        if (sqlite3_step(statement) == SQLITE_DONE)
+        {
+            return YES;
+        }
+        else {
+            return NO;
+        }
+        
+        
+        
+       
+        
+        
+        sqlite3_finalize(statement);
+        sqlite3_close(database);
+        
+        
+        //sqlite3_reset(statement);
+    }
+    return NO;    
+}
+
+
